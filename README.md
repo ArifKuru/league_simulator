@@ -22,8 +22,8 @@ It simulates a simple football league where teams play weekly matches, standings
 
 ## 🚀 Live Demo
 
-Test at [here!](https://arifkuru.com/insider):
-Note that initial request for endpoint may take time up to 30 seconds since project backend using render for deployment in free plan
+Test at [here!](https://arifkuru.com/insider):<br>
+<small>Note that initial request for endpoint may take time up to 30 seconds since project backend using render for deployment in free plan</small><br>
 Backend is deployed on [Render](https://render.com/):
 
 > 🔗 [https://league-simulator-qvbo.onrender.com](https://league-simulator-qvbo.onrender.com)
