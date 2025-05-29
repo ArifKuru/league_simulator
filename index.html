@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>League Simulator</title>
+</head>
+<body>
+  <table border="1">
+    <tr>
+      <!-- League Table -->
+      <td valign="top">
+        <h3>League Table</h3>
+        <table border="1">
+          <thead>
+            <tr><th>Teams</th><th>PTS</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th></tr>
+          </thead>
+          <tbody id="leagueTable">
+            <!-- Filled dynamically -->
+          </tbody>
+        </table>
+        <div>
+          <button onclick="simulateAll()">Play All</button>
+                    <button onclick="simulateNext()">Next Week</button>
+                              <button onclick="resetLeague()">Reset</button>
+
+
+        </div>
+      </td>
+
+      <!-- Match Results -->
+      <td valign="top">
+        <h3 id="weekHeader">Week Match Result</h3>
+        <table border="1">
+          <thead>
+            <tr><th>Home</th><th>Score</th><th>Away</th></tr>
+          </thead>
+          <tbody id="matchResults">
+            <!-- Filled dynamically -->
+          </tbody>
+        </table>
+ 
+      </td>
+
+      <!-- Predictions -->
+      <td valign="top" id="predictionResultsDefault">
+<h3 id="predictionHeader">Week Predictions of Championship</h3>
+
+        <table border="1">
+          <thead>
+            <tr><th>Team</th><th>Chance</th></tr>
+          </thead>
+          <tbody id="predictions">
+            <!-- Filled dynamically -->
+          </tbody>
+        </table>
+      </td>
+           <!-- Predictions -->
+      <td valign="top" id="predictionResultsMonteCarlo">
+<h3 id="predictionHeaderMonteCarlo">Week Predictions of Championship (Monte Carlo)</h3>
+
+        <table border="1">
+          <thead>
+            <tr><th>Team</th><th>Chance</th></tr>
+          </thead>
+          <tbody id="predictionsMonteCarlo">
+            <!-- Filled dynamically -->
+          </tbody>
+        </table>
+      </td>
+
+      <!-- All Match Results -->
+<td valign="top">
+  <h3>All Match Results</h3>
+  <div id="allMatchesContainer">
+    <!-- Filled dynamically -->
+  </div>
+</td>
+
+    </tr>
+  </table>
+
+  <script>
+    function loadAllMatches() {
+    fetch("http://localhost:8080/matches")
+      .then(response => response.json())
+      .then(data => {
+        if (!data.success) return;
+        const grouped = {};
+
+        data.data.forEach(match => {
+          if (!grouped[match.week]) grouped[match.week] = [];
+          grouped[match.week].push(match);
+        });
+
+        const container = document.getElementById("allMatchesContainer");
+        container.innerHTML = "";
+
+        Object.keys(grouped).sort((a, b) => a - b).forEach(week => {
+          const table = document.createElement("table");
+          table.border = "1";
+          table.style.marginBottom = "20px";
+
+          const header = document.createElement("h4");
+          header.innerText = `Week ${week}`;
+          container.appendChild(header);
+
+          const thead = document.createElement("thead");
+          thead.innerHTML = `<tr><th>Home</th><th>Score</th><th>Away</th><th>Action</th></tr>`;
+          table.appendChild(thead);
+
+          const tbody = document.createElement("tbody");
+
+          grouped[week].forEach(match => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${match.home_team}</td>
+              <td contenteditable="true" data-id="${match.id}" data-home="${match.home_team}" data-away="${match.away_team}">
+                ${match.home_score} - ${match.away_score}
+              </td>
+              <td>${match.away_team}</td>
+              <td><button onclick="saveMatch(${match.id}, this)">Save</button></td>
+            `;
+            tbody.appendChild(tr);
+          });
+
+          table.appendChild(tbody);
+          container.appendChild(table);
+        });
+      });}
+      function saveMatch(matchId, button) {
+    const td = button.parentElement.parentElement.querySelector('td[contenteditable]');
+    const scoreParts = td.innerText.split("-").map(p => parseInt(p.trim()));
+    if (scoreParts.length !== 2 || isNaN(scoreParts[0]) || isNaN(scoreParts[1])) {
+      alert("Please enter valid score format like: 2 - 1");
+      return;
+    }
+
+    fetch(`http://localhost:8080/matches/${matchId}/edit`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        home_score: scoreParts[0],
+        away_score: scoreParts[1]
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert("Updated successfully.");
+        refreshTables();
+      } else {
+        alert("Error: " + data.error);
+      }
+    });
+  }
+
+ function simulateAll() {
+      fetch("http://localhost:8080/simulate/all", {
+        method: "POST"
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            refreshTables();
+          }
+        });
+    }
+     function resetLeague() {
+      fetch("http://localhost:8080/reset", {
+        method: "POST"
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            const container = document.getElementById("allMatchesContainer");
+            container.innerHTML = "";
+            refreshTables();
+          }
+        });
+    }
+
+
+    function loadStandings() {
+      fetch("http://localhost:8080/standings")
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            const tbody = document.getElementById("leagueTable");
+            tbody.innerHTML = "";
+            data.data.forEach(row => {
+              const tr = document.createElement("tr");
+              tr.innerHTML = `
+                <td>${row.TeamName}</td>
+                <td>${row.Points}</td>
+                <td>${row.Played}</td>
+                <td>${row.Won}</td>
+                <td>${row.Drawn}</td>
+                <td>${row.Lost}</td>
+                <td>${row.GoalDifference}</td>
+              `;
+              tbody.appendChild(tr);
+            });
+          }
+        });
+    }
+
+    function loadLastMatchResults() {
+      fetch("http://localhost:8080/matches/last")
+        .then(response => response.json())
+        .then(data => {
+          const week = data.latest_week;
+          document.getElementById("weekHeader").innerText = `${week}ᵗʰ Week Match Result`;
+          const tbody = document.getElementById("matchResults");
+          tbody.innerHTML = "";
+          data.data.forEach(row => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${row.home_team}</td>
+              <td>${row.home_score} - ${row.away_score}</td>
+              <td>${row.away_team}</td>
+            `;
+            tbody.appendChild(tr);
+          });
+        });
+    }
+      function simulateNext() {
+            fetch("http://localhost:8080/simulate", {
+              method: "POST"
+            })
+              .then(response => response.json())
+              .then(data => {
+                if (data.success) {
+                  refreshTables();
+                }
+              });
+          }
+
+    function loadPredictions() {
+      fetch("http://localhost:8080/predict")
+        .then(response => response.json())
+        .then(data => {
+          if (!data.success) {
+            document.getElementById('predictionResultsDefault').style.display="none";
+            return;
+          };
+          document.getElementById('predictionResultsDefault').style.display="";
+          document.getElementById("predictionHeader").innerText =
+        `${data.prediction_week}ᵗʰ Week Predictions of Championship`;
+          const tbody = document.getElementById("predictions");
+          tbody.innerHTML = "";
+          data.prediction.forEach(row => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${row.team}</td>
+              <td>${row.chance}%</td>
+            `;
+            tbody.appendChild(tr);
+          });
+        });
+    }
+    
+    function loadPredictionsMonteCarlo() {
+      fetch("http://localhost:8080/predict?method=montecarlo")
+        .then(response => response.json())
+        .then(data => {
+          if (!data.success) {
+            document.getElementById('predictionResultsMonteCarlo').style.display="none";
+            return;
+          };
+          document.getElementById('predictionResultsMonteCarlo').style.display="";
+          document.getElementById("predictionHeaderMonteCarlo").innerText =
+        `${data.prediction_week}ᵗʰ Week Predictions of Championship (Monte Carlo)`;
+          const tbody = document.getElementById("predictionsMonteCarlo");
+          tbody.innerHTML = "";
+          data.prediction.forEach(row => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${row.team}</td>
+              <td>${row.chance}%</td>
+            `;
+            tbody.appendChild(tr);
+          });
+        });
+    }
+
+    function refreshTables() {
+      loadStandings();
+      loadLastMatchResults();
+      loadPredictions();
+      loadPredictionsMonteCarlo();
+      loadAllMatches(); // burası eklendi
+    }
+
+
+    // initial load
+    refreshTables();
+  </script>
+</body>
+</html>
