@@ -17,7 +17,6 @@ type MatchResponse struct {
 	AwayScore    int    `json:"away_score"`
 }
 
-// To list all matches that simulated
 func GetMatches(c *fiber.Ctx) error {
 	db := config.DB
 	var matches []models.Match
@@ -58,66 +57,6 @@ func GetMatches(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"success": true,
 		"data":    response,
-	})
-}
-
-// To get only last week matches currentweek-1
-func GetLastPlayedWeekMatches(c *fiber.Ctx) error {
-	db := config.DB
-	var latestWeek int
-	err := db.Model(&models.Match{}).
-		Where("is_played = ?", true).
-		Select("MAX(week)").
-		Scan(&latestWeek).Error
-
-	if err != nil {
-		return c.Status(500).JSON(fiber.Map{
-			"success":     false,
-			"latest_week": 0,
-			"data":        []any{},
-			"error":       "Hafta bilgisi alınamadı.",
-		})
-	}
-
-	if latestWeek == 0 {
-		return c.JSON(fiber.Map{
-			"success":     true,
-			"latest_week": 0,
-			"data":        []any{},
-		})
-	}
-
-	// O haftanın maçlarını çek
-	var matches []models.Match
-	err = db.Preload("HomeTeam").Preload("AwayTeam").
-		Where("week = ? AND is_played = ?", latestWeek, true).
-		Find(&matches).Error
-
-	if err != nil {
-		return c.Status(500).JSON(fiber.Map{
-			"success":     false,
-			"latest_week": 0,
-			"data":        []any{},
-			"error":       err.Error(),
-		})
-	}
-
-	var response []MatchResponse
-	for _, m := range matches {
-		response = append(response, MatchResponse{
-			ID:           m.ID,
-			Week:         m.Week,
-			HomeTeamName: m.HomeTeam.Name,
-			AwayTeamName: m.AwayTeam.Name,
-			HomeScore:    m.HomeScore,
-			AwayScore:    m.AwayScore,
-		})
-	}
-
-	return c.JSON(fiber.Map{
-		"success":     true,
-		"latest_week": latestWeek,
-		"data":        response,
 	})
 }
 
@@ -173,5 +112,63 @@ func EditMatch(c *fiber.Ctx) error {
 		"success": true,
 		"message": "Maç başarıyla güncellendi.",
 		"data":    response,
+	})
+}
+
+func GetLastPlayedWeekMatches(c *fiber.Ctx) error {
+	db := config.DB
+	var latestWeek int
+	err := db.Model(&models.Match{}).
+		Select("MAX(week)").
+		Scan(&latestWeek).Error
+
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"success":     false,
+			"latest_week": 0,
+			"data":        []any{},
+			"error":       "Hafta bilgisi alınamadı.",
+		})
+	}
+
+	if latestWeek == 0 {
+		return c.JSON(fiber.Map{
+			"success":     true,
+			"latest_week": 0,
+			"data":        []any{},
+		})
+	}
+
+	// O haftanın maçlarını çek
+	var matches []models.Match
+	err = db.Preload("HomeTeam").Preload("AwayTeam").
+		Where("week = ?", latestWeek).
+		Find(&matches).Error
+
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"success":     false,
+			"latest_week": 0,
+			"data":        []any{},
+			"error":       err.Error(),
+		})
+	}
+
+	var response []MatchResponse
+	for _, m := range matches {
+		response = append(response, MatchResponse{
+			ID:           m.ID,
+			Week:         m.Week,
+			HomeTeamName: m.HomeTeam.Name,
+			AwayTeamName: m.AwayTeam.Name,
+			HomeScore:    m.HomeScore,
+			AwayScore:    m.AwayScore,
+		})
+	}
+
+	return c.JSON(fiber.Map{
+		"success":     true,
+		"latest_week": latestWeek,
+		"data":        response,
 	})
 }
