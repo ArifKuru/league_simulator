@@ -43,7 +43,7 @@ Backend is deployed on [Render](https://render.com/):
 | GET    | [**/matches/last**](https://league-simulator-qvbo.onrender.com/matches/last) | Returns last played week matches |
 | POST   | [**/simulate/all**](https://league-simulator-qvbo.onrender.com/simulate/all) | Simulates all remaining weeks |
 | POST   | [**/reset**](https://league-simulator-qvbo.onrender.com/reset) | Resets all match and season data |
-| POST   | [**/matches/:id/edit**](https://league-simulator-qvbo.onrender.com/matches/1/edit) | Edits a specific match score |
+| POST   | [**/matches/:id/edit**](https://league-simulator-qvbo.onrender.com/matches/1/edit) | Edits a specific match score send 'home_score' and 'away_score' in json |
 
 ---
 
@@ -84,3 +84,30 @@ Backend is deployed on [Render](https://render.com/):
 <img src="https://github.com/user-attachments/assets/9478ccfe-a212-4e8a-8f64-6e939ce1a4d1" alt="Final UI Screenshot" width="800"/>
 
 ---
+
+### TO SETUP THIS PROJECT ON LOCAL 
+## ✅ Prerequisites
+
+To run this project locally, make sure you have the following installed:
+
+- **Go** (v1.24 or higher): [Install Go](https://go.dev/doc/install)
+- **Git**: Used to clone the repository. [Download Git](https://git-scm.com/downloads)
+
+
+---
+
+## 🚀 Installation & Local Setup
+
+Follow these steps to clone and run the project on your machine:
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/ArifKuru/league_simulator.git
+cd league_simulator
+```
+```bash
+go run cmd/main.go
+```
+Then You May Test endpoint via Postman 
+here endpoint collection [Test via POSTMAN](https://.postman.co/workspace/My-Workspace~44d159a8-9d5a-4c08-8db4-3a7669347591/collection/40119806-f4bb53c2-93ce-496b-a336-a968f566b029?action=share&creator=40119806)
