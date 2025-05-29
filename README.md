@@ -1,6 +1,6 @@
 # ⚽ League Simulator
 
-This project is a backend case study developed as part of the **Insider Backend Development Hiring Process**.
+This project is a backend case study developed as part of the **Insider Backend Development Intern Case Study**.
 
 It simulates a simple football league where teams play weekly matches, standings are updated, and championship predictions are calculated dynamically based on match outcomes and team strength.
 
@@ -22,7 +22,7 @@ It simulates a simple football league where teams play weekly matches, standings
 
 ## 🚀 Live Demo
 
-Test at [here!](https://arifkuru.com/):
+Test at [here!](https://arifkuru.com/insider):
 
 Backend is deployed on [Render](https://render.com/):
 
@@ -53,3 +53,34 @@ Backend is deployed on [Render](https://render.com/):
 - **Fiber** framework
 - **GORM** ORM
 - **SQLite** database
+## 🧱 Architecture Overview
+
+> A high-level view of the layered backend system.
+
+<img src="https://github.com/user-attachments/assets/a185b55e-f46e-4872-a33a-19cb9173a00e" alt="Architecture" width="700"/>
+
+---
+
+## 🗃️ Database Schema (UML)
+
+> Entity relationships for Team, Match, Standing, SeasonState.
+
+<img src="https://github.com/user-attachments/assets/3e9d04c2-2f23-4729-8da7-ce6a8acd2372" alt="DB UML" width="650"/>
+
+---
+
+## 🔁 Simulation & Prediction Workflow
+
+> Sequence of how simulate & predict endpoints work through the system.
+
+<img src="https://github.com/user-attachments/assets/72344746-d132-4ebe-9048-43113bd2a018" alt="Workflow Diagram" width="750"/>
+
+---
+
+## 🖥️ Final System Screenshot
+
+> Visual representation of the running UI (standings, matches, predictions).
+
+<img src="https://github.com/user-attachments/assets/9478ccfe-a212-4e8a-8f64-6e939ce1a4d1" alt="Final UI Screenshot" width="800"/>
+
+---
