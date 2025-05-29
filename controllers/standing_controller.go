@@ -17,7 +17,7 @@ func GetStandings(c *fiber.Ctx) error {
 	if err := db.Find(&teams).Error; err != nil {
 		return c.Status(500).JSON(fiber.Map{"success": false, "error": err.Error()})
 	}
-	if err := db.Where("is_played = ?", true).Find(&matches).Error; err != nil {
+	if err := db.Find(&matches).Error; err != nil {
 		return c.Status(500).JSON(fiber.Map{"success": false, "error": err.Error()})
 	}
 
