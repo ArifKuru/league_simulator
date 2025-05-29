@@ -110,4 +110,4 @@ cd league_simulator
 go run cmd/main.go
 ```
 Then You May Test endpoint via Postman 
-here endpoint collection [Test via POSTMAN](https://.postman.co/workspace/My-Workspace~44d159a8-9d5a-4c08-8db4-3a7669347591/collection/40119806-f4bb53c2-93ce-496b-a336-a968f566b029?action=share&creator=40119806)
+here endpoint collection <a href='https://web.postman.co/workspace/44d159a8-9d5a-4c08-8db4-3a7669347591'>Postman Link</a>
